@@ -1,2 +1,2 @@
-psql-jdbc/*
-downloads/*
+build/psql-jdbc/
+build/downloads/
