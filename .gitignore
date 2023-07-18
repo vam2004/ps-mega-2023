@@ -1,2 +1,5 @@
 build/psql-jdbc/
 build/downloads/
+build/classes
+build
+src/*.class
