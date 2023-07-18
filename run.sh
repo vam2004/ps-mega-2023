@@ -1,6 +1,7 @@
 #! /bin/bash
 ROOT_DIR="$(pwd)/build"
 OUT="$ROOT_DIR/classes"
+POSTGRESQL_VERSION=
 # set classpath
 
 if [ ! -z ${CLASSPATH+x} ]; then
@@ -22,5 +23,5 @@ echo "[DEBUG] new classpath is $CLASSPATH"
 # build files
 javac ./src/Database.java -d "$OUT"
 javac ./src/Main.java
-java --class-path "$CLASSPATH" -m "$OUT"
+java -cp "$CLASSPATH" -m "$OUT"
 
