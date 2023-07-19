@@ -3,3 +3,4 @@ build/downloads/
 build/classes
 build
 src/*.class
+__pycache__
