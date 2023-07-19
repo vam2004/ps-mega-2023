@@ -7,6 +7,12 @@ public class Database {
 	}
 	static public void test() throws SQLException {
 		String url = "jdbc:postgresql:postgres";
+		/*try {
+			Class.forName("org.postgresql.Driver");
+		} catch(ClassNotFoundException exception) {
+			System.out.println("Cannot initialize the driver");
+			return;
+		}*/
 		Database tmp = new Database(url, "postgres", "");
 	}
 }

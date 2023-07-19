@@ -1,6 +1,7 @@
-build/psql-jdbc/
-build/downloads/
-build/classes
-build
+.build/psql-jdbc/
+.build/downloads/
+.build/classes
+.build
+.libs
 src/*.class
 __pycache__
