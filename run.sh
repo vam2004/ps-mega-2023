@@ -1,18 +1,18 @@
 #! /bin/bash
-ROOT_DIR="$(pwd)/.build"
-OUT="$ROOT_DIR/classes"
+LIBDIR=".libs"
+OUTDIR=".build"
 POSTGRESQL_VERSION="42.6.0"
 # set classpath
-
 if [ ! -z ${CLASSPATH+x} ]; then
 	echo "[DEBUG] previuos classpath was $CLASSPATH" 
 fi
-PSQL_JSBC="$ROOT_DIR/psql-jdbc/postgresql-$POSTGRESQL_VERSION.jar"
+PSQL_JSBC="$LIBDIR/postgresql-$POSTGRESQL_VERSION.jar"
+ADD_CLASSPATH="$PSQL_JSBC:$OUTDIR"
 if [ -f "$PSQL_JSBC" ]; then
 	if [ ! -z ${CLASSPATH+x} ]; then
-		CLASSPATH="$CLASSPATH;$PSQL_JSBC;$OUT/src"
+		CLASSPATH="$CLASSPATH:$ADD_CLASSPATH"
 	else
-		CLASSPATH="$PSQL_JSBC;$OUT/src"
+		CLASSPATH="$ADD_CLASSPATH"
 	fi
 else
 	echo "Library not found: $PSQL_JSBC"
@@ -21,7 +21,9 @@ fi
 echo "[DEBUG] new classpath is $CLASSPATH"
 
 # build files
-javac -cp $CLASSPATH -./src/Database.java -d "$OUT"
-javac -cp $CLASSPATH ./src/Main.java -d "$OUT"
-java -cp $CLASSPATH Main
+javac -cp "$CLASSPATH" -d "$OUTDIR" database/*.java 
+java -cp "$CLASSPATH" database.Main
+
+# javac -classpath .libs/postgresql-42.6.0.jar -d .build/ database/*.java
+# java -verbose -classpath .build database.Main 
 

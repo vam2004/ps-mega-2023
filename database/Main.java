@@ -1,4 +1,4 @@
-package src;
+package database;
 import java.sql.SQLException;
 class Main {
 	public static void main(String[] args) throws SQLException {

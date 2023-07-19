@@ -1,10 +1,10 @@
-package src;
+package database;
 import java.sql.*;
 public class Database {
-	private Connection db;
+	/*private Connection db;
 	public Database(String url, String username, String password) throws SQLException {
 		this.db = DriverManager.getConnection(url, username, password);
-	}
+	}*/
 	static public void test() throws SQLException {
 		String url = "jdbc:postgresql:postgres";
 		/*try {
@@ -13,6 +13,7 @@ public class Database {
 			System.out.println("Cannot initialize the driver");
 			return;
 		}*/
-		Database tmp = new Database(url, "postgres", "");
+		System.out.println("Connecting with: " + url);
+		//Database tmp = new Database(url, "postgres", "");
 	}
 }
