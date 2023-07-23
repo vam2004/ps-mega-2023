@@ -1,5 +1,5 @@
 import os
-import downloader as dependecies
+import downloader as dependencies
 import shutil
 import sys
 def get_cwd():
@@ -12,7 +12,7 @@ postgresql = {
 	"size": 1081604,
 	"path": ".libs/postgresql-42.6.0.jar"
 }
-def install(downloader, cwd, url, size, filehash, path):
+def download(downloader, cwd, url, size, filehash, path):
 	copyto = os.path.join(cwd, path)	
 	try:
 		open(copyto, "x").close()
@@ -24,17 +24,28 @@ def install(downloader, cwd, url, size, filehash, path):
 	shutil.copy2(filename, copyto)
 def usage():
 	pass
+def reinstall(rel_cwd, downloader):
+	psql_url, psql_size = postgresql["url"], postgresql["size"]
+	psql_hash, psql_path = postgresql["hash"], postgresql["path"]
+	download(downloader, rel_cwd, psql_url, psql_size, psql_hash, psql_path)
+def install(rel_cwd, downloader, debug=False):
+	journal = []
+	dependencies.create_directory(".libs", journal)
+	dependencies.create_directory(".build", journal)
+	downloader.create_root(debug, journal)
+	reinstall(rel_cwd, downloader)
+
 def main():
 	sysargs = sys.argv[1:]
 	abs_cwd = get_cwd()
 	rel_cwd = os.path.relpath(abs_cwd)
 	if len(sysargs) == 0:
 		return usage()
+	if sysargs[0] == "reinstall":
+		reinstall(rel_cwd, dependencies.Downloader())
 	if sysargs[0] == "install":
-		downloader = dependecies.Downloader()
-		psql_url, psql_size = postgresql["url"], postgresql["size"]
-		psql_hash, psql_path = postgresql["hash"], postgresql["path"]
-		install(downloader, rel_cwd, psql_url, psql_size, psql_hash, psql_path)
+		install(rel_cwd, dependencies.Downloader(), debug=True)
 	if sysargs[0] == "build":
 		pass
+	
 main()

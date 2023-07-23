@@ -106,8 +106,9 @@ class Downloader:
 		return self.database
 	def opendb(self):
 		self.database = sqlite.connect(self.headers)
-	def create_root(self, debug=False):
-		journal = []
+	def create_root(self, debug=False, journal=None):
+		if journal == None:
+			journal = []
 		create_directory(self.root, journal)
 		create_directory(self.downloads, journal)
 		create_directory(self.cache, journal)
