@@ -55,11 +55,19 @@ async function download(root_directory, url, checksum) {
 ```
  
 # Database
+# Composite Types
+-------------------------------------------------------------------------------
+Type: **Itempack**
+Description: *Constains a collection of same item type*
+Fields:
+- `int amount`: the number of items in the pack
+- `int itemid`: the identifier of the item
+# Tables
 -------------------------------------------------------------------------------
 Table: **Items**
 Description: *Contains a item that can be exchanged, selled or obtained from a box*
 Fields:
-- `int uuid`: a universal unique identifier used to cross referencing
+- `serial int itemid (PK)`: the row identifier
 - `varchar[32] name`: the name seen by the users
 - `int units` - the number of existing units of this item
 - `number min_prize`: the minimal prize that this item can be selled
@@ -75,4 +83,30 @@ Foreign Interactions:
 - decrement the `units` of when selling a item (from method `user.sell`)
 - increment the `units` when a box is open (from method `user.open_box`)
 -------------------------------------------------------------------------------
-Table:
+Table: **Invetory**
+Description: *Constains the item of the user*
+Fields:
+- `int userid (FK-PK)`: the idetenfier of the user which the row is associeted with
+- `Itempack[] avaliable`: the items that are avaliabre to the user
+- `Itempack[][] transactions`: the items that are locked due a exchange transaction
+- `int balance`: the actual balance that the user holds
+-------------------------------------------------------------------------------
+Table: **User** (optional)
+Description: *Auth information* 
+Fields:
+- `serial int userid (PK)`: the row id
+- `varchar(64) name (UNIQUE)`: the name of the user
+- `bytes(32) hash_pass`: the hashed password of the user using `pass_salt` as salt (hmac-sha256)
+- `uuid pass_salt (UNIQUE)`: the salt used to generating the `hash_pass` (hmac-sha256)
+- `time last_login`: the last attempt to login 
+- `int tries`: the sequencial number of login failures
+- `varchar(128) profile_image`: the image path
+Optional Fields:
+- `time login_expiration`: the time required to all sessions expires (required by json-web-token)
+- `uuid live_token`: a security token (which needs to fecth the database to check)
+Methods:
+- `login(int userid, bytes(32) hash_pass)`: login and returns a `live_token` and/or json-web-token
+- `rename(int userid, varchar(64) name)`: rename the user
+- `update_image(int userid, varchar(128) profile_image)`: update the image used by the user
+- `create(varchar(64) name, bytes(32) hash_pass, uuid pass_salt)`: create a new user (already logged)
+- `update_pass(int userid, bytes(32) hash_pass, uuid pass_salt)`: updates the password
