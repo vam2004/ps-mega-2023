@@ -10,14 +10,18 @@ public class Database {
 		// System.out.println("Connecting with: " + url);
 		Connection con = DriverManager.getConnection(url, "postgres", "");
 		Statement st = con.createStatement();
-		//st.executeQuery("CREATE DATABASE hello;");
+		try {
+			st.executeQuery("CREATE DATABASE hello;");
+		} catch(SQLException error){
+			// pass
+		}
 		con.setAutoCommit(false);
 		Savepoint original_state = con.setSavepoint();
 		try {
-			st.executeQuery("CREATE TABLE world(key INT PRIMARY KEY, data STRING);").close();
-			st.executeQuery("INSERT INTO world VALUES(1, 'I am buzy'").close();
-			st.executeQuery("INSERT INTO world VALUES(2, 'Give up!'").close();
-			ResultSet rs = st.executeQuery("SELECT * FROM world");
+			st.execute("CREATE TABLE world(key INT PRIMARY KEY, data VARCHAR(10));");
+			st.execute("INSERT INTO world VALUES(1, 'I am buzy');");
+			st.execute("INSERT INTO world VALUES(2, 'Give up!');");
+			ResultSet rs = st.executeQuery("SELECT * FROM world;");
 			while(rs.next()) {
 				String row = String.format("key: %d, data: %s", rs.getInt(1), rs.getString(2));
 				System.out.println(row);
