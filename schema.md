@@ -13,6 +13,13 @@ This will create by default the following directories:
 - `.build` (where the compiler will put the generated files)
 - `~/.dynimport/` (the cache manager root directory)
 
+The testing function requires the **hello** database. Let's assume that the role
+**postgres** have database creation priviliges, then you can type
+
+	createdb hello -U postgres
+
+This will create the database. The program may use the role **postgres** to connect to database,
+if the program is unable to connect due insufficient priviligies, please create a issue.
 # The dependencie cache manager
 The algorithm used by cache manager can be simplied as:
 ```js
