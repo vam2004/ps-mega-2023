@@ -3,10 +3,13 @@ Development dependencies:
 - git (install with `pacman -S git`)
 - openjdk 20 (install with `pacman -S jdk-openjdk`
 - python 3 (should be installed by default)
+
 The following command should create the directory structure, init the cache manager and
 download the dependecies
 
+
 	python -B manage.py install
+
 
 This will create by default the following directories:
 - `.libs` (where the foreign dependecies will be installed (likely as a *.jar*)
@@ -16,7 +19,9 @@ This will create by default the following directories:
 The testing function requires the **hello** database. Let's assume that the role
 **postgres** have database creation priviliges, then you can type
 
+
 	createdb hello -U postgres
+
 
 This will create the database. The program may use the role **postgres** to connect to database,
 if the program is unable to connect due insufficient priviligies, please create a issue.
@@ -65,15 +70,18 @@ async function download(root_directory, url, checksum) {
 # Composite Types
 -------------------------------------------------------------------------------
 Type: **Itempack**
+
 Description: *Constains a collection of same item type*
+
 Fields:
 - `int amount`: the number of items in the pack
 - `int itemid (FK)`: the identifier of the item or box
 -------------------------------------------------------------------------------
 Type: **Boxpack**
-Description: 
-* A selector-key is a random in the closed interval **0** and **1**.*
+
+Description: * A selector-key is a random in the closed interval **0** and **1**.*
 * A Boxpack matches the selector-key when it is in the closed interval `min_key` and `max_key`* 
+
 Fields:
 - `Itempack[] items`: a set of item that can be obtained by this
 - `number min_key`: the minimum value of selector-key
@@ -81,7 +89,9 @@ Fields:
 # Tables
 -------------------------------------------------------------------------------
 Table: **Items**
+
 Description: *Contains a item that can be exchanged, selled or obtained from a box*
+
 Fields:
 - `serial int itemid (PK)`: the row identifier
 - `varchar[32] name`: the name seen by the users
@@ -90,11 +100,14 @@ Fields:
 - `number max_prize`: the maximum prize that this item can be selled
 - `number prize`: the actual prize that this item can be selled
 - `int typeid`: The supertype of item (0 = box, 1 = Collecionable)
+
 Optional Fields:
 - `varchar image`: the path to the item image
+
 Local Methods:
 - `add_item(varchar[32] name, number min_prize, number max_prize);`: add a item to the database
 - `set_prize(int uuid, number prize);`: defines a new `prize`
+
 Foreign Interactions:
 - get the `prize` when selling a item (from method `user.sell`)
 - decrement the `units` of when selling a item (from method `user.sell`)
@@ -115,7 +128,9 @@ Fields:
 - `Boxpack[] options`: the options that can be choosen
 -------------------------------------------------------------------------------
 Table: **User** (optional)
+
 Description: *Auth information* 
+
 Fields:
 - `serial int userid (PK)`: the row id
 - `varchar(64) name (UNIQUE)`: the name of the user
@@ -124,9 +139,11 @@ Fields:
 - `time last_login`: the last attempt to login 
 - `int tries`: the sequencial number of login failures
 - `varchar(128) profile_image`: the image path
+
 Optional Fields:
 - `time login_expiration`: the time required to all sessions expires (required by json-web-token)
 - `uuid live_token`: a security token (which needs to fecth the database to check)
+
 Methods:
 - `login(int userid, bytes(32) hash_pass)`: login and returns a `live_token` and/or json-web-token
 - `rename(int userid, varchar(64) name)`: rename the user
