@@ -4,13 +4,17 @@ import java.sql.Statement;
 public class NoThrowUpdateQuery {
 	private int affected;
 	private boolean sucess;
-	public NoThrowUpdateQuery(Statement database, String query) {
+	public static NoThrowUpdateQuery run(Statement database, String query) {
 		try {
-			affected = database.executeUpdate(query);
-			sucess = true;
+			int affected = database.executeUpdate(query);
+			return new NoThrowUpdateQuery(affected, true);
 		} catch (SQLException error) {
-			sucess = false;
+			return new NoThrowUpdateQuery(0, false);
 		}
+	}
+	private NoThrowUpdateQuery(int affected, boolean sucess) {
+		this.affected = affected;
+		this.sucess = sucess;
 	}
 	public boolean issucess(){
 		return sucess;

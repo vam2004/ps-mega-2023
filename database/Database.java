@@ -9,10 +9,10 @@ public class Database {
 		Statement st = database.createStatement();
 		String ItempackQuery = QueriesDB.create_type_itempack();
 		String BoxpackQuery = QueriesDB.create_type_boxpack();
-		if(new NoThrowUpdateQuery(st, ItempackQuery).iserror()){
+		if(NoThrowUpdateQuery.run(st, ItempackQuery).iserror()){
 			System.out.println("[SILENT ERROR] sql.type 'Itempack' may exists");
 		}
-		if(new NoThrowUpdateQuery(st, BoxpackQuery).iserror()) {
+		if(NoThrowUpdateQuery.run(st, BoxpackQuery).iserror()) {
 			System.out.println("[SILENT ERROR] sql.type 'Boxpack' may exists");
 		}
 		String ItemsQuery = QueriesDB.create_table_items();
@@ -33,14 +33,14 @@ public class Database {
 		con.setAutoCommit(false);
 		Savepoint original_state = con.setSavepoint();
 		try {
-			/*st.executeUpdate("CREATE TABLE world(key INT PRIMARY KEY, data VARCHAR(10));");
+			st.executeUpdate("CREATE TABLE world(key INT PRIMARY KEY, data VARCHAR(10));");
 			st.executeUpdate("INSERT INTO world VALUES(1, 'I am buzy');");
 			st.executeUpdate("INSERT INTO world VALUES(2, 'Give up!');");
 			ResultSet rs1 = st.executeQuery("SELECT * FROM world;");
 			while(rs1.next()) {
 				String row = String.format("key: %d, data: %s", rs1.getInt(1), rs1.getString(2));
 				System.out.println(row);
-			}*/
+			}
 		} finally {
 			con.rollback(original_state);
 			con.setAutoCommit(true);
