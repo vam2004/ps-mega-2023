@@ -29,6 +29,7 @@ public class Database {
 		// System.out.println("Connecting with: " + url);
 		Connection con = DriverManager.getConnection(url, "postgres", "");
 		Statement st = con.createStatement();
+		create_tables(con);
 		con.setAutoCommit(false);
 		Savepoint original_state = con.setSavepoint();
 		try {
@@ -40,27 +41,6 @@ public class Database {
 				String row = String.format("key: %d, data: %s", rs1.getInt(1), rs1.getString(2));
 				System.out.println(row);
 			}*/
-			create_tables(con);
-			String selectTableQuery = QueriesDB.Debug.select_table_name();
-			String selectSchemaQuery = QueriesDB.Debug.select_table_schema();
-			PreparedStatement selectSchema = con.prepareStatement(selectSchemaQuery);
-			ResultSet rs2 = st.executeQuery(selectTableQuery);
-			while(rs2.next()) {
-				String table_name = rs2.getString(1);
-				System.out.println(table_name);
-				selectSchema.clearParameters();
-				selectSchema.setString(1, table_name);
-				ResultSet rs3 = selectSchema.executeQuery();
-				while(rs3.next()){
-					String column_name = rs3.getString(1);
-					String data_type = rs3.getString(2);
-					int char_max_len = rs3.getInt(3);
-					String row = String.format("%s,%s,%d", column_name, data_type, char_max_len);
-					System.out.println(row);
-				}
-				rs3.close();
-			}
-			
 		} finally {
 			con.rollback(original_state);
 			con.setAutoCommit(true);
