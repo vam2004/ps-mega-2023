@@ -68,7 +68,6 @@ async function download(root_directory, url, checksum) {
  
 # Database
 # Composite Types
--------------------------------------------------------------------------------
 Type: **Itempack**
 
 Description: *Constains a collection of same item type*
@@ -87,7 +86,6 @@ Fields:
 - `number min_key`: the minimum value of selector-key
 - `number max_key`: the maximum value of selector-key -->
 # Tables
--------------------------------------------------------------------------------
 Table: **Items**
 
 Description: *Contains a item that can be exchanged, selled or obtained from a box*
@@ -113,16 +111,11 @@ Foreign Interactions:
 - decrement the `units` of when selling a item (from method `user.sell`)
 - increment the `units` when a box is open (from method `user.open_box`)
 -------------------------------------------------------------------------------
-Table: **Invetory**
-Description: *Constains the item of the user*
-Fields:
-- `int userid (FK-PK)`: the idetenfier of the user which the row is associeted with
-- `Itempack[] avaliable`: the items that are avaliabre to the user
-- `Itempack[][] transactions`: the items that are locked due a exchange transaction
-- `int balance`: the actual balance that the user holds
--------------------------------------------------------------------------------
+
 Table: **Boxes**
+
 Description: *Constain the box prototype*
+
 Fields:
 - `int itemid (FK-PK)`: the itemid associated to the box (a box is also a item)
 - `Boxpack[] options`: the options that can be choosen
@@ -150,3 +143,28 @@ Methods:
 - `update_image(int userid, varchar(128) profile_image)`: update the image used by the user
 - `create(varchar(64) name, bytes(32) hash_pass, uuid pass_salt)`: create a new user (already logged)
 - `update_pass(int userid, bytes(32) hash_pass, uuid pass_salt)`: updates the password
+
+-------------------------------------------------------------------------------
+Table: **Invetory**
+
+Description: *Constains the item of the user*
+
+Fields:
+- `int userid (FK-PK)`: the idetenfier of the user which the row is associeted with
+- `Itempack[] avaliable`: the items that are avaliabre to the user
+- `Itempack[] blocked`: the items that are locked due a exchange transaction
+- `int balance`: the actual balance that the user holds
+-------------------------------------------------------------------------------
+Table: **Exchage**
+
+Description: *Exchange operation between users*
+
+Fields:
+- `serial exchangeid (PK)`: the identifier used in this transaction
+- `int target (FK)`: the target of transaction (refers to a `userid`)
+- `int sender (FK)`: the owner of transaction (refers to a `userid`)
+- `Itempack[] send`: the items that can be sended to `target` by the `sender`
+- `Itempack[] recv`: the items that can be sended to `sender` by the `target`
+- `time expiration`: the maximum time before expiring and rejecting the transaction
+
+
