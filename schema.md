@@ -69,9 +69,8 @@ Description: *Constains a collection of same item type*
 Fields:
 - `int amount`: the number of items in the pack
 - `int itemid (FK)`: the identifier of the item or box
-<!-- 
 -------------------------------------------------------------------------------
- Type: **Boxpack**
+Type: **Boxpack**
 Description: 
 * A selector-key is a random in the closed interval **0** and **1**.*
 * A Boxpack matches the selector-key when it is in the closed interval `min_key` and `max_key`* 
@@ -112,10 +111,8 @@ Fields:
 Table: **Boxes**
 Description: *Constain the box prototype*
 Fields:
-- `int itemid (FK)`: contains a possibility associated to itemid (a box is also a item)
-- `Itempack[] items`: the items that can be generated when matched this boxes
-- `number min_key`
-- `number max_key`
+- `int itemid (FK-PK)`: the itemid associated to the box (a box is also a item)
+- `Boxpack[] options`: the options that can be choosen
 -------------------------------------------------------------------------------
 Table: **User** (optional)
 Description: *Auth information* 
