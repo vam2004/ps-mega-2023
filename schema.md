@@ -7,9 +7,9 @@ Development dependencies:
 The following command should create the directory structure, init the cache manager and
 download the dependecies
 
-
+```console
 	python -B manage.py install
-
+```
 
 This will create by default the following directories:
 - `.libs` (where the foreign dependecies will be installed (likely as a *.jar*)
@@ -19,9 +19,9 @@ This will create by default the following directories:
 The testing function requires the **hello** database. Let's assume that the role
 **postgres** have database creation priviliges, then you can type
 
-
+```console
 	createdb hello -U postgres
-
+```
 
 This will create the database. The program may use the role **postgres** to connect to database,
 if the program is unable to connect due insufficient priviligies, please create a issue.
