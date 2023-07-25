@@ -2,36 +2,17 @@ package database;
 import java.sql.*;
 public class Database {
 	private Connection db;
-
 	public Database(String url, String username, String password) throws SQLException {
 		this.db = DriverManager.getConnection(url, username, password);
-	}
-	public static class NoThrowUpdateQuery {
-		private int affected;
-		private boolean sucess;
-		public NoThrowUpdateQuery(Statement database, String query) {
-			try {
-				affected = database.executeUpdate(query);
-				sucess = true;
-			} catch (SQLException error) {
-				sucess = false;
-			}
-		}
-		public boolean issucess(){
-			return sucess;
-		}
-		public boolean iserror(){
-			return !sucess;
-		}
 	}
 	static public void create_tables(Connection database) throws SQLException {
 		Statement st = database.createStatement();
 		String ItempackQuery = QueriesDB.create_type_itempack();
 		String BoxpackQuery = QueriesDB.create_type_boxpack();
-		if(new Database.NoThrowUpdateQuery(st, ItempackQuery).iserror()){
+		if(new NoThrowUpdateQuery(st, ItempackQuery).iserror()){
 			System.out.println("[SILENT ERROR] sql.type 'Itempack' may exists");
 		}
-		if(new Database.NoThrowUpdateQuery(st, BoxpackQuery).iserror()) {
+		if(new NoThrowUpdateQuery(st, BoxpackQuery).iserror()) {
 			System.out.println("[SILENT ERROR] sql.type 'Boxpack' may exists");
 		}
 		String ItemsQuery = QueriesDB.create_table_items();
