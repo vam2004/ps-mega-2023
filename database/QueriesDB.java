@@ -1,16 +1,5 @@
 package database;
 public class QueriesDB {
-	public static final class Debug {
-		public static String select_table_name(){
-			return "SELECT table_name FROM information_schema.tables "
-					+ "WHERE table_type = 'BASE TABLE' AND table_schema NOT IN" 
-					+ "('pg_catalog', 'information_schema');";
-		}
-		public static String select_table_schema(){
-			return "SELECT column_name, data_type, character_maximum_length, column_default,"
-					+ "is_nullable FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ?;";
-		}
-	}
 	public static String create_type_itempack(){
 		return "CREATE TYPE Itempack AS (amount INT, itemid INT);";
 	}
