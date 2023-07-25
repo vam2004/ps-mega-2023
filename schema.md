@@ -78,26 +78,26 @@ Fields:
 -------------------------------------------------------------------------------
 Type: **Boxpack**
 
-Description: * A selector-key is a random in the closed interval **0** and **1**.*
-* A Boxpack matches the selector-key when it is in the closed interval `min_key` and `max_key`* 
+Description: *A selector-key is a random in the closed interval **0** and **1**.*
+*A Boxpack matches the selector-key when it is in the closed interval `min_key` and `max_key`* 
 
 Fields:
 - `Itempack[] items`: a set of item that can be obtained by this
 - `number min_key`: the minimum value of selector-key
-- `number max_key`: the maximum value of selector-key -->
+- `number max_key`: the maximum value of selector-key
 # Tables
 Table: **Items**
 
 Description: *Contains a item that can be exchanged, selled or obtained from a box*
 
 Fields:
-- `serial int itemid (PK)`: the row identifier
+- `serial itemid (PK)`: the row identifier
 - `varchar[32] name`: the name seen by the users
 - `int units` - the number of existing units of this item
 - `number min_prize`: the minimal prize that this item can be selled
 - `number max_prize`: the maximum prize that this item can be selled
 - `number prize`: the actual prize that this item can be selled
-- `int typeid`: The supertype of item (0 = box, 1 = Collecionable)
+- `int typeid`: The supertype of item (1 = box, 0 = Collecionable)
 
 Optional Fields:
 - `varchar image`: the path to the item image
@@ -151,7 +151,7 @@ Description: *Constains the item of the user*
 
 Fields:
 - `int userid (FK-PK)`: the idetenfier of the user which the row is associeted with
-- `Itempack[] avaliable`: the items that are avaliabre to the user
+- `Itempack[] avaliable`: the items that are avaliable to the user
 - `Itempack[] blocked`: the items that are locked due a exchange transaction
 - `int balance`: the actual balance that the user holds
 -------------------------------------------------------------------------------
@@ -167,4 +167,51 @@ Fields:
 - `Itempack[] recv`: the items that can be sended to `sender` by the `target`
 - `time expiration`: the maximum time before expiring and rejecting the transaction
 
+# Database Algoritmhs
 
+```
+
+Item Invetory.subtract_pack(Itempack pack) uncommited {
+	Item kind = Items.select_first(itemid=pack.itemid);
+	Itempack was = this.avaliable.select_first(itemid=pack.itemid);
+	if (was.amount > amount) {
+		was.amount = was.amount - pack.amount;
+	} else {
+		abort "Insuficient Items";
+	}
+	return kind;
+}
+Itempack[] Boxes.get_reward(real key) nochange {
+	Boxpack spec = this.options.select_first(min_key <= key and max_key >= key);
+	return spec.items;
+}
+
+ITEM_TYPE = 0;
+BOX_TYPE = 1;
+void Items.create(itemname_t name, prize_t min_prize, prize_t max_prize, prize_t initial_prize) {
+	this.name = name;
+	this.min_prize = min_prize;
+	this.max_prize = max_prize;
+	this.prize = initial_prize;
+	this.typeid = ITEM_TYPE;
+	this.itemid.use_next();
+	commit;
+} 
+void Invetory.sell(Itempack pack) {
+	Item kind = this.subtract_pack(pack);
+	this.balance = this.balance + pack.amount * kind.prize;
+	commit;
+} 
+void Invetory.open_box(int itemid, real key) {
+	Item kind = this.subtract_pack(pack);
+	if(kind.typeid != BOX_TYPE) {
+		abort "Not is a box!";
+	}
+	Box to_open = Boxes.select_first(itemid=boxid);
+	Itempack[] rewards = to_open.get_reward(key);
+	for(Itempack reward in rewards) {
+		this.add_itempack(reward);
+	}
+	commit;
+}
+```
