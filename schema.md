@@ -61,7 +61,17 @@ Type: **Itempack**
 Description: *Constains a collection of same item type*
 Fields:
 - `int amount`: the number of items in the pack
-- `int itemid`: the identifier of the item
+- `int itemid (FK)`: the identifier of the item or box
+<!-- 
+-------------------------------------------------------------------------------
+ Type: **Boxpack**
+Description: 
+* A selector-key is a random in the closed interval **0** and **1**.*
+* A Boxpack matches the selector-key when it is in the closed interval `min_key` and `max_key`* 
+Fields:
+- `Itempack[] items`: a set of item that can be obtained by this
+- `number min_key`: the minimum value of selector-key
+- `number max_key`: the maximum value of selector-key -->
 # Tables
 -------------------------------------------------------------------------------
 Table: **Items**
@@ -73,6 +83,7 @@ Fields:
 - `number min_prize`: the minimal prize that this item can be selled
 - `number max_prize`: the maximum prize that this item can be selled
 - `number prize`: the actual prize that this item can be selled
+- `int typeid`: The supertype of item (0 = box, 1 = Collecionable)
 Optional Fields:
 - `varchar image`: the path to the item image
 Local Methods:
@@ -90,6 +101,14 @@ Fields:
 - `Itempack[] avaliable`: the items that are avaliabre to the user
 - `Itempack[][] transactions`: the items that are locked due a exchange transaction
 - `int balance`: the actual balance that the user holds
+-------------------------------------------------------------------------------
+Table: **Boxes**
+Description: *Constain the box prototype*
+Fields:
+- `int itemid (FK)`: contains a possibility associated to itemid (a box is also a item)
+- `Itempack[] items`: the items that can be generated when matched this boxes
+- `number min_key`
+- `number max_key`
 -------------------------------------------------------------------------------
 Table: **User** (optional)
 Description: *Auth information* 
