@@ -34,6 +34,11 @@ def install(rel_cwd, downloader, debug=False):
 	dependencies.create_directory(".build", journal)
 	downloader.create_root(debug, journal)
 	reinstall(rel_cwd, downloader)
+def get_or_default(array, index, otherwise = None):
+	if index < len(array):
+		return array[index]
+	else:
+		return otherwise
 
 def main():
 	sysargs = sys.argv[1:]
@@ -42,9 +47,11 @@ def main():
 	if len(sysargs) == 0:
 		return usage()
 	if sysargs[0] == "reinstall":
-		reinstall(rel_cwd, dependencies.Downloader())
+		root_dir = get_or_default(sysargs, 1, "~/.dynimport")
+		reinstall(rel_cwd, dependencies.Downloader(root_dir))
 	if sysargs[0] == "install":
-		install(rel_cwd, dependencies.Downloader(), debug=True)
+		root_dir = get_or_default(sysargs, 1, "~/.dynimport")
+		install(rel_cwd, dependencies.Downloader(root_dir), debug=True)
 	if sysargs[0] == "build":
 		pass
 	
