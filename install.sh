@@ -31,19 +31,21 @@ check_file(){
 }
 log_and_move(){
 	echo "[EXEC] mv '$1' '$2'"; # sensible operation
-	# return $(mv "$1" "$2");
-	return 1;
+	mv "$1" "$2";
+	return $?;
 }
 CURL_DOWNLOAD_OPTIONS="--ssl-no-revoke"
 # @description: "download a file from url": @args url path
 fresh_download(){
 	echo "[EXEC] curl -o '$2' $CURL_DOWNLOAD_OPTIONS -sS '$1'"; # sensible operation
-	return $(curl -o "$2" $CURL_DOWNLOAD_OPTIONS -sS "$1");
+	curl -o "$2" $CURL_DOWNLOAD_OPTIONS -sS "$1";
+	return $?;
 }
 # @description: "continue downloading the url": @args url path
 continue_download(){
 	echo "[EXEC] curl -C - -o '$2' $CURL_DOWNLOAD_OPTIONS -sS '$1'"; # sensible operation
-	return $(curl -C - -o "$2" $CURL_DOWNLOAD_OPTIONS -sS "$1");
+	curl -C - -o "$2" $CURL_DOWNLOAD_OPTIONS -sS "$1";
+	return $?;
 }
 # @description: "continues a download": @args url temp_path hash size
 check_and_continue(){
@@ -55,7 +57,7 @@ check_and_continue(){
 	if [ "$size" -ne "$4" ]; then
 		echo "[DEBUG] continuing download at byte $size";
 		if ! continue_download "$1" "$2"; then
-			exit 1;
+			return 2;
 		fi
 		return 1;
 	fi
@@ -63,7 +65,7 @@ check_and_continue(){
 	if [ ! "$hash" = "$3" ]; then
 		echo "[DEBUG] redownloading: cache poisioned";
 		if ! fresh_download "$1" "$2"; then
-			exit 1;
+			return 2;
 		fi
 	fi
 	return 0;
@@ -85,8 +87,14 @@ download_and_check() {
 	else
 		local tmpfile="$INSTALL_DOWNLOADS_CACHE/$3.bin";
 		if [ -f "$tmpfile" ]; then
-		 	if check_and_continue "$1" "$tmpfile" "$3" "$4"; then
-				return $(log_and_move "$tmpfile" "$2");
+			check_and_continue "$1" "$tmpfile" "$3" "$4"
+			local download_status=$?;
+		 	if [ $download_status -eq 0 ]; then
+				log_and_move "$tmpfile" "$2";
+				return $?;
+			fi
+			if [ $download_status -eq 2 ]; then
+				return 1;
 			fi
 		else
 			echo "[DEBUG] download_and_check: first download"
@@ -97,7 +105,8 @@ download_and_check() {
 		echo "[DEBUG] checking download";
 		if check_file "$tmpfile" "$3" "$4"; then
 			echo "[DEBUG] download verified!";
-			return $(log_and_move "$tmpfile" "$2");
+			log_and_move "$tmpfile" "$2";
+			return $?;
 		else
 			echo "[ERROR] corrupted file found: '$tmpfile'"
 			return 1;
