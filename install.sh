@@ -5,14 +5,15 @@ POSTGRESQL_JDBC_HASH=b817c67a40c94249fd59d4e686e3327ed0d3d3fae426b20da0f1e75652c
 POSTGRESQL_JDBC_SIZE=1081604
 # @description: "get size of file" @args: path
 get_size(){
-	return $(($(du -b "$1" 2> /dev/null | cut -f1) +0))
+	echo $(($(du -b "$1" 2> /dev/null | cut -f1) +0))
 }
 # @description: "gets the hash of file" @args: path
 get_hash(){
-	return $(sha256sum "$1" | cut -d " " -f1);
+	sha256sum "$1" | cut -d " " -f1;
 }
 # @description: "checks the integrity of file" @args: path hash size
 check_file(){
+	echo "[ARGS] check_file '$1' '$2' '$3'";
 	local size=$(get_size "$1");
 	if [ "$size" -ne "$3" ]; then
 		return 1;
@@ -25,6 +26,8 @@ check_file(){
 }
 # @description: "continues a download": @args url temp_path hash size
 check_and_continue(){
+	echo "[ARGS] check_and_continue \$1='$1' \$2='$2'";
+	echo "[ARGS] check_and_continue \$3='$3' \$4='$4'";
 	local size=$(get_size "$2");
 	if [ "$size" -ne "$4" ]; then
 		echo "[DEBUG] continuing download at byte $size";
@@ -41,6 +44,8 @@ check_and_continue(){
 
 #  url path hash size
 download_link() {
+	echo "[ARGS] download_link \$1='$1' \$2='$2'";
+	echo "[ARGS] download_link \$3='$3' \$4='$4'";
 	if [ -f "$4" ]; then
 		if check_file "$2" "$3" "$4"; then
 			echo "[DEBUG] ignoring: file exists";
@@ -72,14 +77,13 @@ download_link() {
 }
 
 main(){
-	mkdir .build;
-	mkdir .libs;
+	mkdir -p .build;
+	mkdir -p .libs;
 	local FILENAME="postgresql-$POSTGRESQL_JDBC_VERSION.jar";
 	local MIRROR="https://jdbc.postgresql.org/download";
 	local URL="$MIRROR/$FILENAME";
-	local PERMPATH=".libs/$FILENAME"
-	#return $(download_link "$URL" "$FILENAME" "$POSTGRESQL_JDBC_HASH" "$POSTGRESQL_JDBC_SIZE");
-	echo "[EXEC] download_link '$URL' '$FILENAME' '$POSTGRESQL_JDBC_HASH' '$POSTGRESQL_JDBC_SIZE'" # sensible operation
+	local PERMPATH=".libs/$FILENAME";
+	download_link "$URL" "$FILENAME" "$POSTGRESQL_JDBC_HASH" "$POSTGRESQL_JDBC_SIZE";
 }
 
 main
