@@ -2,7 +2,7 @@
 
 POSTGRESQL_JDBC_VERSION=42.6.0
 POSTGRESQL_JDBC_HASH=b817c67a40c94249fd59d4e686e3327ed0d3d3fae426b20da0f1e75652cfc461
-POSTGRESQL_JDBC_SIZE=0
+POSTGRESQL_JDBC_SIZE=1081604
 # @description: "get size of file" @args: path
 get_size(){
 	return $(du -b postgresql-42.6.0.jar | cut -f1);
