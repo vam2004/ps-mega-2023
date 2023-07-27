@@ -21,11 +21,9 @@ fi
 echo "[DEBUG] new classpath is $CLASSPATH"
 
 # build files
-SUCESS=1
-javac -cp "$CLASSPATH" -d "$OUTDIR" database/*.java || SUCESS=0
-if (( $SUCESS )); then
+if javac -cp "$CLASSPATH" -d "$OUTDIR" database/*.java; then
 	java -cp "$CLASSPATH" database.Main
 fi
 # javac -classpath .libs/postgresql-42.6.0.jar -d .build/ database/*.java
-# java -verbose -classpath .build database.Main 
+# java -verbose -classpath .build database.Main
 
