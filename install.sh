@@ -19,21 +19,31 @@ check_file(){
 	echo "[ARGS] check_file.\$3='$3'";
 	local size=$(get_size "$1");
 	if [ "$size" -ne "$3" ]; then
+		echo "[SILENT ERROR] check_file: invalid size '$size'"
 		return 1;
 	fi
 	local hash=$(get_hash "$1");
 	if [ ! "$hash" = "$2" ]; then
+		echo "[SILENT ERROR] check_file: invalid hash '$hash'"
 		return 1;
 	fi
 	return 0;
 }
+log_and_move(){
+	echo "[EXEC] mv '$1' '$2'"; # sensible operation
+	# return $(mv "$1" "$2");
+	return 1;
+}
+CURL_DOWNLOAD_OPTIONS="--ssl-no-revoke"
 # @description: "download a file from url": @args url path
 fresh_download(){
-	curl -o "$2" -sS "$1";
+	echo "[EXEC] curl -o '$2' $CURL_DOWNLOAD_OPTIONS -sS '$1'"; # sensible operation
+	return $(curl -o "$2" $CURL_DOWNLOAD_OPTIONS -sS "$1");
 }
 # @description: "continue downloading the url": @args url path
 continue_download(){
-	curl -C - -o "$2" -sS "$1";
+	echo "[EXEC] curl -C - -o '$2' $CURL_DOWNLOAD_OPTIONS -sS '$1'"; # sensible operation
+	return $(curl -C - -o "$2" $CURL_DOWNLOAD_OPTIONS -sS "$1");
 }
 # @description: "continues a download": @args url temp_path hash size
 check_and_continue(){
@@ -60,10 +70,10 @@ check_and_continue(){
 }
 #  url path hash size
 download_and_check() {
-	echo "[ARGS] download_link.\$1='$1'";
-	echo "[ARGS] download_link.\$2='$2'";
-	echo "[ARGS] download_link.\$3='$3'";
-	echo "[ARGS] download_link.\$4='$4'";
+	echo "[ARGS] download_and_check.\$1='$1'";
+	echo "[ARGS] download_and_check.\$2='$2'";
+	echo "[ARGS] download_and_check.\$3='$3'";
+	echo "[ARGS] download_and_check.\$4='$4'";
 	if [ -f "$2" ]; then
 		if check_file "$2" "$3" "$4"; then
 			echo "[DEBUG] ignoring: file exists";
@@ -76,20 +86,18 @@ download_and_check() {
 		local tmpfile="$INSTALL_DOWNLOADS_CACHE/$3.bin";
 		if [ -f "$tmpfile" ]; then
 		 	if check_and_continue "$1" "$tmpfile" "$3" "$4"; then
-				echo "[EXEC] mv '$tmpfile' '$2'"; # sensible operation
-				return mv "$tmpfile" "$2";
+				return $(log_and_move "$tmpfile" "$2");
 			fi
 		else
-			echo "[EXEC] curl -o '$tmpfile' --silent '$1'"; # sensible operation
-			if ! fresh_download "$1" "$2"; then
+			echo "[DEBUG] download_and_check: first download"
+			if ! fresh_download "$1" "$tmpfile"; then
 				return 1;
 			fi
 		fi
 		echo "[DEBUG] checking download";
 		if check_file "$tmpfile" "$3" "$4"; then
 			echo "[DEBUG] download verified!";
-			echo "[EXEC] mv '$tmpfile' '$2'"; # sensible operation
-			return $(mv "$tmpfile" "$2");
+			return $(log_and_move "$tmpfile" "$2");
 		else
 			echo "[ERROR] corrupted file found: '$tmpfile'"
 			return 1;
