@@ -3,5 +3,6 @@
 .build/classes
 .build
 .libs
+.dynimport
 src/*.class
 __pycache__
