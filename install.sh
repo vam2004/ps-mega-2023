@@ -1,11 +1,11 @@
-#! /bin/dash
+#!/bin/sh
 
 POSTGRESQL_JDBC_VERSION=42.6.0
 POSTGRESQL_JDBC_HASH=b817c67a40c94249fd59d4e686e3327ed0d3d3fae426b20da0f1e75652cfc461
 POSTGRESQL_JDBC_SIZE=1081604
 # @description: "get size of file" @args: path
 get_size(){
-	return $(du -b postgresql-42.6.0.jar | cut -f1);
+	return $(($(du -b "$1" 2> /dev/null | cut -f1) +0))
 }
 # @description: "gets the hash of file" @args: path
 get_hash(){
@@ -82,4 +82,4 @@ main(){
 	echo "[EXEC] download_link '$URL' '$FILENAME' '$POSTGRESQL_JDBC_HASH' '$POSTGRESQL_JDBC_SIZE'" # sensible operation
 }
 
-main 
+main
