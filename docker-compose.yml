@@ -1,0 +1,16 @@
+name: mega-system
+services:
+  db:
+    image: "postgres:latest"
+    volumes:
+      - ./.megadb:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: asylium
+  main:
+    build: .
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./project:/home/developer/project
+    depends_on:
+      - db

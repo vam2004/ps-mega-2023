@@ -1,6 +1,6 @@
 #! /bin/bash
-LIBDIR=".libs"
-OUTDIR=".build"
+LIBDIR="../.libs"
+OUTDIR="../.build"
 POSTGRESQL_VERSION="42.6.0"
 # set classpath
 if [ ! -z ${CLASSPATH+x} ]; then

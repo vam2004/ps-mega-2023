@@ -3,7 +3,7 @@ POSTGRESQL_JDBC_HASH=b817c67a40c94249fd59d4e686e3327ed0d3d3fae426b20da0f1e75652c
 POSTGRESQL_JDBC_SIZE=1081604
 INSTALL_DOWNLOAD_CACHE=".dynimport"
 
-function main {
+main() {
 mkdir -p .build;
 mkdir -p .libs;
 if [ ! -d "$INSTALL_DOWNLOAD_CACHE" ]; then

@@ -4,5 +4,6 @@
 .build
 .libs
 .dynimport
+.megadb
 src/*.class
 __pycache__
