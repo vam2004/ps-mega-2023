@@ -1,4 +1,4 @@
-package database;
+package project.database;
 public class QueriesDB {
 	public static String create_type_itempack(){
 		return "CREATE TYPE Itempack AS (amount INT, itemid INT);";

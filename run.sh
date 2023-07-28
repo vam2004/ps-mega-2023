@@ -1,6 +1,6 @@
 #! /bin/bash
-LIBDIR="../.libs"
-OUTDIR="../.build"
+LIBDIR="./.libs"
+OUTDIR="./.build"
 POSTGRESQL_VERSION="42.6.0"
 # set classpath
 if [ ! -z ${CLASSPATH+x} ]; then
@@ -21,8 +21,8 @@ fi
 echo "[DEBUG] new classpath is $CLASSPATH"
 
 # build files
-if javac -cp "$CLASSPATH" -d "$OUTDIR" database/*.java; then
-	java -cp "$CLASSPATH" database.Main
+if javac -cp "$CLASSPATH" -d "$OUTDIR" project/database/*.java; then
+	java -cp "$CLASSPATH" project/database.Main
 fi
 # javac -classpath .libs/postgresql-42.6.0.jar -d .build/ database/*.java
 # java -verbose -classpath .build database.Main

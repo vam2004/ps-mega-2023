@@ -1,4 +1,4 @@
-package database;
+package project.database;
 import java.sql.Connection;
 public class InjectUser {
 	private int userid;

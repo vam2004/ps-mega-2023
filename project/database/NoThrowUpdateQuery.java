@@ -1,4 +1,4 @@
-package database;
+package project.database;
 import java.sql.SQLException;
 import java.sql.Statement;
 public class NoThrowUpdateQuery {

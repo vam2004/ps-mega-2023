@@ -1,4 +1,4 @@
-package database;
+package project.database;
 import java.sql.*;
 public class Database {
 	private Connection db;
@@ -25,7 +25,7 @@ public class Database {
 		st.executeUpdate(InvetoryQuery);
 	}
 	static public void test() throws SQLException {
-		String url = "jdbc:postgresql://db:5432/hello";
+		String url = "jdbc:postgresql://db:5432/megadb";
 		// System.out.println("Connecting with: " + url);
 		Connection con = DriverManager.getConnection(url, "postgres", "asylium");
 		Statement st = con.createStatement();
