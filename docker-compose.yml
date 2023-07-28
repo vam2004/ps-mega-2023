@@ -6,6 +6,8 @@ services:
       - ./.megadb:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: asylium
+    ports:
+      - "5432:5432"
   main:
     build: .
     stdin_open: true
