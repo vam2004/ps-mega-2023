@@ -8,12 +8,8 @@ public class Database {
 	static public void create_tables(Connection database) throws SQLException {
 		Statement st = database.createStatement();
 		String ItempackQuery = QueriesDB.create_type_itempack();
-		String BoxpackQuery = QueriesDB.create_type_boxpack();
 		if(NoThrowUpdateQuery.run(st, ItempackQuery).iserror()){
 			System.out.println("[SILENT ERROR] sql.type 'Itempack' may exists");
-		}
-		if(NoThrowUpdateQuery.run(st, BoxpackQuery).iserror()) {
-			System.out.println("[SILENT ERROR] sql.type 'Boxpack' may exists");
 		}
 		String ItemsQuery = QueriesDB.create_table_items();
 		String BoxesQuery = QueriesDB.create_table_boxes();
@@ -45,6 +41,16 @@ public class Database {
 			con.rollback(original_state);
 			con.setAutoCommit(true);
 		}
-		
+	}
+	// set max_prize=0 to unset prize bondaries
+	public void create_item(String name, double prize, double min_prize, double max_prize) throws SQLException {
+		String query = QueriesDB.item_create();
+		PreparedStatement st = this.db.prepareStatement(query);
+	}
+	public void create_item(String name, double prize, double min_prize) throws SQLException {
+		create_item(name, prize, min_prize, 0.0);
+	}
+	public void create_item(String name, double prize) throws SQLException {
+		create_item(name, prize, 0.0);
 	}
 }

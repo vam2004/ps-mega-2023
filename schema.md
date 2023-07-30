@@ -117,8 +117,10 @@ Table: **Boxes**
 Description: *Constain the box prototype*
 
 Fields:
-- `int itemid (FK-PK)`: the itemid associated to the box (a box is also a item)
-- `Boxpack[] options`: the options that can be choosen
+- `int itemid (FK)`: the itemid associated to the box (a box is also a item);
+- `Boxpack option`:  the option associated with the box (can have multiple);
+Constraint:
+- `UNIQUE itemid, option;`
 -------------------------------------------------------------------------------
 Table: **User** (optional)
 
@@ -132,7 +134,7 @@ Fields:
 - `time last_login`: the last attempt to login 
 - `int tries`: the sequencial number of login failures
 - `varchar(128) profile_image`: the image path
-
+- `int balance`: the actual balance that the user holds
 Optional Fields:
 - `time login_expiration`: the time required to all sessions expires (required by json-web-token)
 - `uuid live_token`: a security token (which needs to fecth the database to check)
@@ -150,10 +152,10 @@ Table: **Invetory**
 Description: *Constains the item of the user*
 
 Fields:
-- `int userid (FK-PK)`: the idetenfier of the user which the row is associeted with
-- `Itempack[] avaliable`: the items that are avaliable to the user
-- `Itempack[] blocked`: the items that are locked due a exchange transaction
-- `int balance`: the actual balance that the user holds
+- `int userid (FK)`: the userid which the itempack is owned
+- `Itempack single`: the items that are avaliable to the user
+Constraint:
+- `UNIQUE userid, single;`
 -------------------------------------------------------------------------------
 Table: **Exchage**
 
@@ -170,16 +172,13 @@ Fields:
 # Database Algoritmhs
 
 ```
-
-Item Invetory.subtract_pack(Itempack pack) uncommited {
-	Item kind = Items.select_first(itemid=pack.itemid);
-	Itempack was = this.avaliable.select_first(itemid=pack.itemid);
+void Invetory.subtract_pack(User user, Itempack pack) uncommited {
+	Itempack was = this.select_first(userid=user.userid, itemid=pack.itemid);
 	if (was.amount > amount) {
 		was.amount = was.amount - pack.amount;
 	} else {
 		abort "Insuficient Items";
 	}
-	return kind;
 }
 Itempack[] Boxes.get_reward(real key) nochange {
 	Boxpack spec = this.options.select_first(min_key <= key and max_key >= key);
@@ -197,13 +196,14 @@ void Items.create(itemname_t name, prize_t min_prize, prize_t max_prize, prize_t
 	this.itemid.use_next();
 	commit;
 } 
-void Invetory.sell(Itempack pack) {
-	Item kind = this.subtract_pack(pack);
-	this.balance = this.balance + pack.amount * kind.prize;
+void Invetory.sell(User user, Itempack pack) {
+	Item kind = Items.select_first(itemid=pack.itemid);
+	this.subtract_pack(user, pack);
+	user.balance = user.balance + pack.amount * kind.prize;
 	commit;
 } 
-void Invetory.open_box(int itemid, real key) {
-	Item kind = this.subtract_pack(pack);
+void Invetory.open_box(User user, int itemid, real key) {
+	Item kind = Items.select_first(itemid=itemid);
 	if(kind.typeid != BOX_TYPE) {
 		abort "Not is a box!";
 	}
