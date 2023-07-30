@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/sh
 
 # @description: "get size of file" @args: path
 get_size(){

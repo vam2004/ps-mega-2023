@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 LIBDIR="./.libs"
 OUTDIR="./.build"
 POSTGRESQL_VERSION="42.6.0"

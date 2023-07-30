@@ -1,3 +1,4 @@
+#! /bin/sh
 CURL_DOWNLOAD_OPTIONS="--ssl-no-revoke"
 # @description "(continue the) download the url" @args operation url path
 download_http(){

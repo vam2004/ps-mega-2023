@@ -1,3 +1,5 @@
+#! /bin/sh
+
 # ------------------------------------------------------------------
 # this program executes a single action in the name of user and exit
 # priviligied action requires reading a token from stdin
