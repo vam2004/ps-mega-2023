@@ -13,7 +13,7 @@ Isolated development dependencies:
 The following command will create the directory structure
 
 
-  ./install.sh
+    ./install.sh
 
 
 This shell scripts doesn't create by default following required directory:
@@ -23,7 +23,7 @@ This shell scripts doesn't create by default following required directory:
 Which should be created beforehand, with could be done with the following command:
 
 
-  mkdir .dynimport
+    mkdir .dynimport
 
 
 The following directories are creatd by default:
@@ -35,24 +35,28 @@ The following directories are creatd by default:
 If you have **docker** and **docker-compose**, then the installation can  be done by typing the following command in the local repository directory:
 
 
-  docker compose up -d
+    docker compose up -d
 
 
 This should build and run the containers. Note that the docker service should be running, otherwise may raise a error.
 
 You can create the database with the command provided in `create-database.sh`, and you can enter in the interactive shell inside the main container with the command provided in `enter.sh`. To compile ans run the program, you can then type in the main container's default workdir the following command
 
-./run.sh
+
+    ./run.sh
 
 
 The container can be rebuilt with the folloeing container
 
-  docker compose build
+
+    docker compose build
+
 
 And to unistall the composed container, you can use the following command
 
 
-  docker compose down
+    docker compose down
+
 
 This was also tested inside the **cygwin** and **cmd.exe**. 
 # Database
