@@ -1,71 +1,60 @@
 # Installation
-Development dependencies:
+If you would like to use docker, please read the docker subsection.
+
+Bare-metal development dependencies:
 - git (install with `pacman -S git`)
 - openjdk 20 (install with `pacman -S jdk-openjdk`
-- python 3 (should be installed by default)
+- postgresql
+Obs.: the code was test in the arch linux, and is not supposed to run on windows
 
-The following command should create the directory structure, init the cache manager and
-download the dependecies
+Isolated development dependencies:
+- docker (recent version)
 
-
-	python -B manage.py install
-
-
-This will create by default the following directories:
-- `.libs` (where the foreign dependecies will be installed (likely as a *.jar*)
-- `.build` (where the compiler will put the generated files)
-- `~/.dynimport/` (the cache manager root directory)
-
-The testing function requires the **hello** database. Let's assume that the role
-**postgres** have database creation priviliges, then you can type
+The following command will create the directory structure
 
 
-	createdb hello -U postgres
+  ./install.sh
 
 
-This will create the database. The program may use the role **postgres** to connect to database,
-if the program is unable to connect due insufficient priviligies, please create a issue.
-# The dependencie cache manager
-The algorithm used by cache manager can be simplied as:
-```js
-function get_permanent_path(root_directory, urlhash) {
-	let path = path_join([root_directory, "cache", urlhash]);
-	let file = path_join(permanent_path, "file.bin");
-	let info = path_join(permanent_path, "lock.txt");
-	return { path, file, info };
-}
-async function force_download(root_directory, url, urlhash, checksum) {
-	// cache miss
-	let temporary_file = path_join([root_directory, "downloads", urlhash]);
-	temporary_file.add_extension(".bin");
-	await download_into(temporary_file, url);
-	if(validate_checksum(temporary_file, checksum){
-		let permanent = get_permanent_path(urlhash);
-		await move_file(temporary_file, permanent.file);
-		await dump_checksum(permanent.info, checksum);
-		await database.update_checksum(urlhash, checksum);
-		return permanent.file;
-	} else {
-		throw CorruptedDownload(temporary_file, checksum);
-	}
-}
-async function download(root_directory, url, checksum) {
-	let urlhash = await hash_the_url(url);
-	let info = await database.get_info(urlhash);
-	if(is_null(info)){
-		file = await force_download(root_directory, url, urlhash, checksum); 
-		return {file, fresh: true};
-	} else {
-		let permanent = get_permanent_path(urlhash);
-		if(validate_cached_info(info, permanent.info){
-			return {file: permanent.file, fresh: false};
-		} else {
-			throw ConflictedUrlhash(urlhash);
-		}
-	}
-}
-```
- 
+This shell scripts doesn't create by default following required directory:
+
+- `.dynimport/` (the cache manager root directory)
+
+Which should be created beforehand, with could be done with the following command:
+
+
+  mkdir .dynimport
+
+
+The following directories are creatd by default:
+- `.libs/` (where the foreign dependecies will be installed (likely as a *.jar*)
+- `.build/` (where the compiler will put the generated files)
+
+## Docker
+
+If you have **docker** and **docker-compose**, then the installation can  be done by typing the following command in the local repository directory:
+
+
+  docker compose up -d
+
+
+This should build and run the containers. Note that the docker service should be running, otherwise may raise a error.
+
+You can create the database with the command provided in `create-database.sh`, and you can enter in the interactive shell inside the main container with the command provided in `enter.sh`. To compile ans run the program, you can then type in the main container's default workdir the following command
+
+./run.sh
+
+
+The container can be rebuilt with the folloeing container
+
+  docker compose build
+
+And to unistall the composed container, you can use the following command
+
+
+  docker compose down
+
+This was also tested inside the **cygwin** and **cmd.exe**. 
 # Database
 # Composite Types
 Type: **Itempack**
