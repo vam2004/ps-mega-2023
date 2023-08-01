@@ -5,6 +5,7 @@ Bare-metal development dependencies:
 - git (install with `pacman -S git`)
 - openjdk 20 (install with `pacman -S jdk-openjdk`
 - postgresql
+
 Obs.: the code was test in the arch linux, and is not supposed to run on windows
 
 Isolated development dependencies:
