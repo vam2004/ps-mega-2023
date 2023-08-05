@@ -49,97 +49,97 @@ And to unistall the composed container, you can use the following command
 
 This was also tested inside the **cygwin** and **cmd.exe**. 
 # Database
-# Composite Types
-Type: **Itempack**
+### Type: Itempack
 
-Description: *Constains a collection of same item type*
+*Constains a collection of same item type*
 
+| type | name |  |
 Fields:
 - `int amount`: the number of items in the pack
 - `int itemid (FK)`: the identifier of the item or box
-<!--
--------------------------------------------------------------------------------
-Type: **Boxpack**
+### Item Types (supertypes)
 
-Description: *A selector-key is a random in the closed interval **0** and **1**.*
-*A Boxpack matches the selector-key when it is in the closed interval `min_key` and `max_key`* 
+| identifier	| name		| description		|
+| :----:	| :----:	| :----:		|
+| 0		| Collectable	| Cannot be used	|
+| 1		| Box		| Yields a random item	|
 
-Fields:
-- `Itempack[] items`: a set of item that can be obtained by this
-- `number min_key`: the minimum value of selector-key
-- `number max_key`: the maximum value of selector-key
--->
-# Tables
-Table: **Items**
+## Table: Items
 
 Description: *Contains a item that can be exchanged, selled or obtained from a box*
 
-Fields:
-| type  | constraints | name | description |
-| :----: | :----: | :----: | :----: |
-| SERIAL | PRIMARY KEY | itemid | row identifier |
-| VARCHAR(32) | | name | item's name |
-| INT | | units | reference counter |
-| PRIZE_T | | min_prize | sale's minimal prize
-| PRIZE_T | | max_prize | sale's maximum prize
-| PRIZE_T | | prize | sale's actual prize
-| INT | typeid | | supertype 
+| type		| name		| description		|
+| :----:	| :----:	| :----:		|
+| SERIAL	| itemid 	| row identifier	|
+| VARCHAR(32)	| name		| item's name		|
+| INT		| units		| reference counter	|
+| PRIZE_T	| min_prize	| sale's minimal prize	|
+| PRIZE_T	| max_prize	| sale's maximum prize	|
+| PRIZE_T	| prize		| sale's actual prize	|
+| INT		| typeid	| supertype (item type)	|
+| --- 		| --- 		| ---			| 	
+| VARCHAR(12)	| image		| item's image path 	|
 
-supertypes:
-| identifier | name | description |
-| :----: | :----: | :----: |
-| 0 | Collecionable | Cannot be used |
-| 1 | Box | Generates a random item |
+- `PRIMARY KEY (itemid)`
 
-Optional Fields:
-- `varchar(12) image`: the path to the item image
+## Table: Boxes
 
--------------------------------------------------------------------------------
+*Constains the box prototype*
 
-Table: **Boxes**
+| type		| name		| description		|
+| :----:	| :----:	| :----:		|
+| INT		| boxid		| itemid associated 	|
+| INT 		| packid 	| packid associted	|
+| REAL		| min_key 	| selector key begining	|
+| REAL		| max_key 	| selector key ending	|
 
-Description: *Constain the box prototype*
+- `UNIQUE (boxid, min_key, max_key)`
+- `FOREIGN KEY itemid REFERENCES Items(itemid)`
+- `FOREIGN KEY packid REFERENCES Itempack(packid)`
 
-Fields:
-- `int itemid (FK)`: the itemid associated to the box (a box is also a item);
-- `Boxpack option`:  the option associated with the box (can have multiple);
-Constraint:
-- `UNIQUE itemid, option;`
--------------------------------------------------------------------------------
-Table: **User** (optional)
+Observations:
+- Multiple itempack can be associated to a single box, which is done by using multiple pairs (`boxid`, `packid`)
 
-Description: *Auth information* 
+## Table: User
 
-Fields:
-- `serial int userid (PK)`: the row id
-- `varchar(64) name (UNIQUE)`: the name of the user
-- `bytes(32) hash_pass`: the hashed password of the user using `pass_salt` as salt (hmac-sha256)
-- `uuid pass_salt (UNIQUE)`: the salt used to generating the `hash_pass` (hmac-sha256)
-- `time last_login`: the last attempt to login 
-- `int tries`: the sequencial number of login failures
-- `varchar(128) profile_image`: the image path
-- `int balance`: the actual balance that the user holds
-Optional Fields:
-- `time login_expiration`: the time required to all sessions expires (required by json-web-token)
-- `uuid live_token`: a security token (which needs to fecth the database to check)
+*Auth information* 
 
-Methods:
-- `login(int userid, bytes(32) hash_pass)`: login and returns a `live_token` and/or json-web-token
-- `rename(int userid, varchar(64) name)`: rename the user
-- `update_image(int userid, varchar(128) profile_image)`: update the image used by the user
-- `create(varchar(64) name, bytes(32) hash_pass, uuid pass_salt)`: create a new user (already logged)
-- `update_pass(int userid, bytes(32) hash_pass, uuid pass_salt)`: updates the password
+| type		| name		| description			|
+| :----:	| :----:	| :----:			|
+| SERIAL	| userid	| the row id			|
+| VARCHAR(64)	| name		| the name of the user		|
+| BYTES(32)	| hash_pass	| password's hash (hmac-sha256)	|
+| UUID		| pass_salt	| password hash's salt		|
+| TIME		| last_login	| last attempt to login 	|
+| INT		| tries		| login failures		|
+| VARCHAR(12)	| profile_image	| profile's image path		|
+| INT		| balance	| money avalible (balance)	|
+| ---		| ---		| ---				|
+| TIME		| expiration	| sessions's expiration time	|
+| UUID		| live_token	| a nonfungible security token	|
 
--------------------------------------------------------------------------------
-Table: **Invetory**
+- `PRIMARY KEY (userid)`
+- `UNIQUE (name)`
+- `UNIQUE hash_salt`
 
-Description: *Constains the item of the user*
+Observations:
+- If json-web-token is used the field `expiration` shall be used.
+- If a user is deleted, the field `userid` cannot safely be reused until the time in the field `expiration`
 
-Fields:
-- `int userid (FK)`: the userid which the itempack is owned
-- `Itempack single`: the items that are avaliable to the user
-Constraint:
-- `UNIQUE userid, single;`
+## Table: Invetory
+
+*Constains the item of the user*
+
+| type		| name		| description		|
+| :----:	| :----:	| :----:		|
+| INT		| userid	| userid associated 	|
+| INT		| itemid 	| itemid associated	|
+| INT		| amount	| number of items	|
+
+- `UNIQUE (userid, itemid)`
+
+Observations:
+- Multiple items can be associated to a single user, which is done by using multiple pairs (`userid`, `itemid`)
 -------------------------------------------------------------------------------
 Table: **Exchage**
 
