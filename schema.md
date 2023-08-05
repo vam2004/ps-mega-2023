@@ -75,44 +75,45 @@ Fields:
 Constraints:
 - `PRIMARY KEY (itemid)`
 
-## Table: Boxpacks
+## Table: BoxSelectors
 
-*Constains a collection of collection of same item type used by boxes*
-
-Fields:
-| type 		| name 		| description 		|
-| :----:	| :----:	| :----:		|
-| INT		| packid	| associated boxpack	|
-| INT		| itemid	| associated itemid	|
-| INT		| amount	| pack's amount		|
-
-
-Constraints:
-- `FOREIGN KEY itemid REFERENCES Items(itemid) ON DELETE RESTRICT`
-- `PRIMARY KEY (packid, itemid)`
-
-Observations:
-- Multiple itempacks can be associated to a single boxpacks, which is done by using multiple pairs (`packid`, `itemid`)
-
-## Table: Boxes
-
-*Constains the box prototype*
+*Constains the box selector*
 
 Fields:
 | type		| name		| description		|
 | :----:	| :----:	| :----:		|
 | INT		| boxid		| itemid associated 	|
-| INT 		| packid 	| packid associted	|
 | REAL		| min_key 	| selector key begining	|
 | REAL		| max_key 	| selector key ending	|
 
 Constraints:
 - `UNIQUE (boxid, min_key, max_key)`
-- `FOREIGN KEY itemid REFERENCES Items(itemid) ON DELETE RESTRICT`
-- `FOREIGN KEY packid REFERENCES Boxpacks(packid) ON DELETE RESTRICT`
+- `FOREIGN KEY boxid REFERENCES Items(itemid) ON DELETE CASCADE` (boxid is the owner)
 
 Observations:
 - Multiple Boxpacks can be associated to a single box, which is done by using multiple pairs (`boxid`, `packid`)
+- The item reference by `boxid` shall be a box
+
+## Table: BoxOptions
+
+*Constains the options associated to a box*
+
+Fields:
+| type 		| name 		| description 		|
+| :----:	| :----:	| :----:		|
+| INT		| boxid		| associated boxpack	|
+| INT		| itemid	| associated itemid	|
+| INT		| amount	| pack's amount		|
+
+Constraints:
+- `PRIMARY KEY (boxid, itemid)`
+- `FOREIGN KEY boxid REFERENCES Items(itemid) ON DELETE CASCADE` (boxid is the owner)
+- `FOREIGN KEY itemid REFERENCES Items(itemid) ON DELETE RESTRICT` (itemid is borrowed)
+
+
+Observations:
+- Multiple itempacks can be associated to a single box, which is done by using multiple pairs (`boxid`, `itemid`)
+- The item reference by `boxid` shall be a box
 
 ## Table: Users
 
@@ -155,8 +156,8 @@ Fields:
 
 Constraints:
 - `UNIQUE (userid, itemid)`
-- `FOREIGN KEY (userid) REFERENCES Users(userid) ON DELETE CASCADE`
-- `FOREIGN KEY (itemid) REFERENCES Items(itemid) ON DELETE RESTRICT`
+- `FOREIGN KEY (userid) REFERENCES Users(userid) ON DELETE CASCADE` (userid is the owner)
+- `FOREIGN KEY (itemid) REFERENCES Items(itemid) ON DELETE RESTRICT` (itemid is borrowed)
 Observations:
 - Multiple items can be associated to a single user, which is done by using multiple pairs (`userid`, `itemid`)
 
@@ -165,23 +166,22 @@ Observations:
 Description: *Exchange operation between users*
 
 Fields:
-| type		| name		| description		|
-| :----:	| :----:	| :----:		|
-serial exchangeid (PK)| the identifier used in this transaction
-int target| (FK)| the target of transaction (refers to a `userid`)
-int sender| (FK)| the owner of transaction (refers to a `userid`)
-exchangeid| send| the items that can be sended to `target` by the `sender`
-exchangeid[]| recv| the items that can be sended to `sender` by the `target`
-time| expiration| the maximum time before expiring and rejecting the transaction
+| type		| name		| description			|
+| :----:	| :----:	| :----:			|
+| SERIAL	| exchangeid 	| identifier			|
+| INT		| target 	| transaction's target userid	|
+| INT		| owner 	| transaction's owner userid	|
+| TIME		| expiration	| transaction's expiration 	|
+| BOOLEAN	| active	| if it was confirmed		|
 
 Constraints:
-- `FOREIGN KEY (target) REFERENCES Users(userid) ON DELETE CASCADE`
-- `FOREIGN KEY (sender) REFERENCES Users(userid) ON DELETE CASCADE`
+- `FOREIGN KEY (target) REFERENCES Users(userid) ON DELETE CASCADE` (target is the coowner)
+- `FOREIGN KEY (sender) REFERENCES Users(userid) ON DELETE CASCADE` (sender is the coowner)
 - `PRIMARY KEY (exchangeid)`
 
-## Table: Exchangepacks
+## Table: Sendpacks
 
-*Constains a collection of collection of same item type used by boxes*
+*Constains a collection of packs that are sended during a transaction*
 
 Fields:
 | type 		| name 		| description 				|
@@ -190,15 +190,16 @@ Fields:
 | INT		| itemid	| associated itemid			|
 | INT		| amount	| pack's amount				|
 
-
 Constraints:
-- `FOREIGN KEY itemid REFERENCES Items(itemid) ON DELETE RESTRICT`
-- `FOREIGN KEY exchangeid REFERENCES exchange(exchangeid) ON DELETE CASCADE`
 - `PRIMARY KEY (packid, itemid)`
+- `FOREIGN KEY exchangeid REFERENCES exchange(exchangeid) ON DELETE CASCADE` (exchangeid is the owner)
+- `FOREIGN KEY itemid REFERENCES Items(itemid) ON DELETE RESTRICT` (itemid is borrowed)
 
 Observations:
 - Multiple itempacks can be associated to a single boxpacks, which is done by using multiple pairs (`packid`, `itemid`)
-- 
+- If `amount` is positive, then the associated item will be removed from `owner` and added to `target`
+- If `amount` is negative, then the associated item will be removed from `target` and added to `owner`
+
 # Database Algoritmhs
 
 ```
