@@ -6,16 +6,14 @@ Bare-metal development dependencies:
 - openjdk 20 (install with `pacman -S jdk-openjdk`
 - postgresql
 
-Obs.: the code was test in the arch linux, and is not supposed to run on windows
+Obs.: the code was tested in the arch linux, and is not supposed to run on windows
 
 Isolated development dependencies:
 - docker (recent version)
 
 The following command will create the directory structure
 
-
     ./install.sh
-
 
 This shell scripts doesn't create by default following required directory:
 
@@ -23,9 +21,7 @@ This shell scripts doesn't create by default following required directory:
 
 Which should be created beforehand, with could be done with the following command:
 
-
     mkdir .dynimport
-
 
 The following directories are creatd by default:
 - `.libs/` (where the foreign dependecies will be installed (likely as a *.jar*)
@@ -35,29 +31,21 @@ The following directories are creatd by default:
 
 If you have **docker** and **docker-compose**, then the installation can  be done by typing the following command in the local repository directory:
 
-
     docker compose up -d
-
 
 This should build and run the containers. Note that the docker service should be running, otherwise may raise a error.
 
 You can create the database with the command provided in `create-database.sh`, and you can enter in the interactive shell inside the main container with the command provided in `enter.sh`. To compile ans run the program, you can then type in the main container's default workdir the following command
 
-
     ./run.sh
-
 
 The container can be rebuilt with the folloeing container
 
-
     docker compose build
-
 
 And to unistall the composed container, you can use the following command
 
-
     docker compose down
-
 
 This was also tested inside the **cygwin** and **cmd.exe**. 
 # Database
@@ -69,6 +57,7 @@ Description: *Constains a collection of same item type*
 Fields:
 - `int amount`: the number of items in the pack
 - `int itemid (FK)`: the identifier of the item or box
+<!--
 -------------------------------------------------------------------------------
 Type: **Boxpack**
 
@@ -79,31 +68,32 @@ Fields:
 - `Itempack[] items`: a set of item that can be obtained by this
 - `number min_key`: the minimum value of selector-key
 - `number max_key`: the maximum value of selector-key
+-->
 # Tables
 Table: **Items**
 
 Description: *Contains a item that can be exchanged, selled or obtained from a box*
 
 Fields:
-- `serial itemid (PK)`: the row identifier
-- `varchar[32] name`: the name seen by the users
-- `int units` - the number of existing units of this item
-- `number min_prize`: the minimal prize that this item can be selled
-- `number max_prize`: the maximum prize that this item can be selled
-- `number prize`: the actual prize that this item can be selled
-- `int typeid`: The supertype of item (1 = box, 0 = Collecionable)
+| type  | constraints | name | description |
+| :----: | :----: | :----: | :----: |
+| SERIAL | PRIMARY KEY | itemid | row identifier |
+| VARCHAR(32) | | name | item's name |
+| INT | | units | reference counter |
+| PRIZE_T | | min_prize | sale's minimal prize
+| PRIZE_T | | max_prize | sale's maximum prize
+| PRIZE_T | | prize | sale's actual prize
+| INT | typeid | | supertype 
+
+supertypes:
+| identifier | name | description |
+| :----: | :----: | :----: |
+| 0 | Collecionable | Cannot be used |
+| 1 | Box | Generates a random item |
 
 Optional Fields:
-- `varchar image`: the path to the item image
+- `varchar(12) image`: the path to the item image
 
-Local Methods:
-- `add_item(varchar[32] name, number min_prize, number max_prize);`: add a item to the database
-- `set_prize(int uuid, number prize);`: defines a new `prize`
-
-Foreign Interactions:
-- get the `prize` when selling a item (from method `user.sell`)
-- decrement the `units` of when selling a item (from method `user.sell`)
-- increment the `units` when a box is open (from method `user.open_box`)
 -------------------------------------------------------------------------------
 
 Table: **Boxes**
