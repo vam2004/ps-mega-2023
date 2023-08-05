@@ -49,16 +49,7 @@ And to unistall the composed container, you can use the following command
 
 This was also tested inside the **cygwin** and **cmd.exe**. 
 # Database
-### Type: Itempack
-
-*Constains a collection of same item type*
-
-| type | name |  |
-Fields:
-- `int amount`: the number of items in the pack
-- `int itemid (FK)`: the identifier of the item or box
-### Item Types (supertypes)
-
+Item Types (supertypes):
 | identifier	| name		| description		|
 | :----:	| :----:	| :----:		|
 | 0		| Collectable	| Cannot be used	|
@@ -66,26 +57,48 @@ Fields:
 
 ## Table: Items
 
-Description: *Contains a item that can be exchanged, selled or obtained from a box*
+*Contains a item that can be exchanged, selled or obtained from a box*
 
+Fields:
 | type		| name		| description		|
 | :----:	| :----:	| :----:		|
 | SERIAL	| itemid 	| row identifier	|
 | VARCHAR(32)	| name		| item's name		|
-| INT		| units		| reference counter	|
 | PRIZE_T	| min_prize	| sale's minimal prize	|
 | PRIZE_T	| max_prize	| sale's maximum prize	|
 | PRIZE_T	| prize		| sale's actual prize	|
 | INT		| typeid	| supertype (item type)	|
-| --- 		| --- 		| ---			| 	
+| --- 		| (optional)	| ---			| 	
 | VARCHAR(12)	| image		| item's image path 	|
+| INT		| units		| reference counter	|
 
+Constraints:
 - `PRIMARY KEY (itemid)`
+
+## Table: Boxpacks
+
+*Constains a collection of collection of same item type used by boxes*
+
+Fields:
+| type 		| name 		| description 		|
+| :----:	| :----:	| :----:		|
+| INT		| packid	| associated boxpack	|
+| INT		| itemid	| associated itemid	|
+| INT		| amount	| pack's amount		|
+
+
+Constraints:
+- `FOREIGN KEY itemid REFERENCES Items(itemid) ON DELETE RESTRICT`
+- `PRIMARY KEY (packid, itemid)`
+
+Observations:
+- Multiple itempacks can be associated to a single boxpacks, which is done by using multiple pairs (`packid`, `itemid`)
 
 ## Table: Boxes
 
 *Constains the box prototype*
 
+Fields:
 | type		| name		| description		|
 | :----:	| :----:	| :----:		|
 | INT		| boxid		| itemid associated 	|
@@ -93,17 +106,19 @@ Description: *Contains a item that can be exchanged, selled or obtained from a b
 | REAL		| min_key 	| selector key begining	|
 | REAL		| max_key 	| selector key ending	|
 
+Constraints:
 - `UNIQUE (boxid, min_key, max_key)`
-- `FOREIGN KEY itemid REFERENCES Items(itemid)`
-- `FOREIGN KEY packid REFERENCES Itempack(packid)`
+- `FOREIGN KEY itemid REFERENCES Items(itemid) ON DELETE RESTRICT`
+- `FOREIGN KEY packid REFERENCES Boxpacks(packid) ON DELETE RESTRICT`
 
 Observations:
-- Multiple itempack can be associated to a single box, which is done by using multiple pairs (`boxid`, `packid`)
+- Multiple Boxpacks can be associated to a single box, which is done by using multiple pairs (`boxid`, `packid`)
 
-## Table: User
+## Table: Users
 
 *Auth information* 
 
+Fields:
 | type		| name		| description			|
 | :----:	| :----:	| :----:			|
 | SERIAL	| userid	| the row id			|
@@ -114,10 +129,11 @@ Observations:
 | INT		| tries		| login failures		|
 | VARCHAR(12)	| profile_image	| profile's image path		|
 | INT		| balance	| money avalible (balance)	|
-| ---		| ---		| ---				|
+| ---		| (optional)	| ---				|
 | TIME		| expiration	| sessions's expiration time	|
 | UUID		| live_token	| a nonfungible security token	|
 
+Constraints:
 - `PRIMARY KEY (userid)`
 - `UNIQUE (name)`
 - `UNIQUE hash_salt`
@@ -130,29 +146,59 @@ Observations:
 
 *Constains the item of the user*
 
+Fields:
 | type		| name		| description		|
 | :----:	| :----:	| :----:		|
 | INT		| userid	| userid associated 	|
 | INT		| itemid 	| itemid associated	|
 | INT		| amount	| number of items	|
 
+Constraints:
 - `UNIQUE (userid, itemid)`
-
+- `FOREIGN KEY (userid) REFERENCES Users(userid) ON DELETE CASCADE`
+- `FOREIGN KEY (itemid) REFERENCES Items(itemid) ON DELETE RESTRICT`
 Observations:
 - Multiple items can be associated to a single user, which is done by using multiple pairs (`userid`, `itemid`)
--------------------------------------------------------------------------------
-Table: **Exchage**
+
+## Table: Exchange
 
 Description: *Exchange operation between users*
 
 Fields:
-- `serial exchangeid (PK)`: the identifier used in this transaction
-- `int target (FK)`: the target of transaction (refers to a `userid`)
-- `int sender (FK)`: the owner of transaction (refers to a `userid`)
-- `Itempack[] send`: the items that can be sended to `target` by the `sender`
-- `Itempack[] recv`: the items that can be sended to `sender` by the `target`
-- `time expiration`: the maximum time before expiring and rejecting the transaction
+| type		| name		| description		|
+| :----:	| :----:	| :----:		|
+serial exchangeid (PK)| the identifier used in this transaction
+int target| (FK)| the target of transaction (refers to a `userid`)
+int sender| (FK)| the owner of transaction (refers to a `userid`)
+exchangeid| send| the items that can be sended to `target` by the `sender`
+exchangeid[]| recv| the items that can be sended to `sender` by the `target`
+time| expiration| the maximum time before expiring and rejecting the transaction
 
+Constraints:
+- `FOREIGN KEY (target) REFERENCES Users(userid) ON DELETE CASCADE`
+- `FOREIGN KEY (sender) REFERENCES Users(userid) ON DELETE CASCADE`
+- `PRIMARY KEY (exchangeid)`
+
+## Table: Exchangepacks
+
+*Constains a collection of collection of same item type used by boxes*
+
+Fields:
+| type 		| name 		| description 				|
+| :----:	| :----:	| :----:				|
+| INT		| sendid	| associated exchange transaction	|
+| INT		| itemid	| associated itemid			|
+| INT		| amount	| pack's amount				|
+
+
+Constraints:
+- `FOREIGN KEY itemid REFERENCES Items(itemid) ON DELETE RESTRICT`
+- `FOREIGN KEY exchangeid REFERENCES exchange(exchangeid) ON DELETE CASCADE`
+- `PRIMARY KEY (packid, itemid)`
+
+Observations:
+- Multiple itempacks can be associated to a single boxpacks, which is done by using multiple pairs (`packid`, `itemid`)
+- 
 # Database Algoritmhs
 
 ```
