@@ -172,7 +172,6 @@ Fields:
 | INT		| target 	| transaction's target userid	|
 | INT		| owner 	| transaction's owner userid	|
 | TIME		| expiration	| transaction's expiration 	|
-| BOOLEAN	| active	| if it was confirmed		|
 
 Constraints:
 - `FOREIGN KEY (target) REFERENCES Users(userid) ON DELETE CASCADE` (target is the coowner)
