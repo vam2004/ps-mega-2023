@@ -82,6 +82,7 @@ Constraints:
 Fields:
 | type		| name		| description		|
 | :----:	| :----:	| :----:		|
+| SERIAL 	| selector	| row id		|
 | INT		| boxid		| itemid associated 	|
 | REAL		| min_key 	| selector key begining	|
 | REAL		| max_key 	| selector key ending	|
@@ -101,19 +102,18 @@ Observations:
 Fields:
 | type 		| name 		| description 		|
 | :----:	| :----:	| :----:		|
-| INT		| boxid		| associated boxpack	|
+| INT		| selector	| associated boxpack	|
 | INT		| itemid	| associated itemid	|
 | INT		| amount	| pack's amount		|
 
 Constraints:
-- `PRIMARY KEY (boxid, itemid)`
-- `FOREIGN KEY boxid REFERENCES Items(itemid) ON DELETE CASCADE` (boxid is the owner)
+- `UNIQUE (selector, itemid)`
+- `FOREIGN KEY boxid REFERENCES BoxSelectors(selector) ON DELETE CASCADE` (boxid is the owner)
 - `FOREIGN KEY itemid REFERENCES Items(itemid) ON DELETE RESTRICT` (itemid is borrowed)
 
 
 Observations:
-- Multiple itempacks can be associated to a single box, which is done by using multiple pairs (`boxid`, `itemid`)
-- The item reference by `boxid` shall be a box
+- Multiple itempacks can be associated to a box selector, which is done by using multiple pairs (`selector`, `itemid`)
 
 ## Table: Users
 
