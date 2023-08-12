@@ -21,7 +21,7 @@ fi
 echo "[DEBUG] new classpath is $CLASSPATH"
 
 # build files
-if javac -cp "$CLASSPATH" -d "$OUTDIR" project/database/*.java; then
+if javac -Xlint:unchecked -cp "$CLASSPATH" -d "$OUTDIR" project/database/*.java; then
 	java -cp "$CLASSPATH" project/database.Main
 fi
 # javac -classpath .libs/postgresql-42.6.0.jar -d .build/ database/*.java
